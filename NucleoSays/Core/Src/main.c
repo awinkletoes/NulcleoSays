@@ -31,11 +31,13 @@
 I2C_HandleTypeDef hi2c1;
 SPI_HandleTypeDef hspi1;
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart1;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_USART1_UART_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_I2C1_Init(void);
 
@@ -74,60 +76,6 @@ int lives = 3;
 int alive = 1; // boolean 1 if lives left; 0 if no lives left and game is over
 // Heart Photo Bitmap
 static const uint16_t image_data_finalHeart[2916] = {
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒▒▒▒▒▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙▒▒▒∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
-    // ∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0001, 0x0000, 0x0020, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0020, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0801, 0x0000, 0x0001, 0x0000, 0x0000, 0x0020, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0021, 0x0000, 0x0000, 0x0040, 0x0020, 0x0000, 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001, 0x0000, 0x0020, 0x0020, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0021, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0801, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0021, 0x0000, 0x0000, 0x0020, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0020, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -215,7 +163,21 @@ UG_BMP heartAliveBmp = {
 #define SCORE "Score: "
 #define FINAL_SCORE "Final Score: "
 #define GAME_OVER "Game Over!"
-#define GAME_RESET "Press the reset button on the \r\nmaster board to start over."
+#define BT_LOADING "Connect your device to NucleoSays."
+#define PUSH_BUTTON_TO_START "Push the blue pushbutton \r\nto start once successfully \r\nconnected to BT."
+
+// Bluetooth
+# define BUFF_SIZE 512
+char rx_buff_from_BlueTooth_module[BUFF_SIZE];
+char c_it_buff_to_BlueTooth_module[] = "C-It!";
+char z_it_buff_to_BlueTooth_module[] = "Z-It!";
+char twist_it_buff_to_BlueTooth_module[] = "Twist-It!";
+char push_it_buff_to_BlueTooth_module[] = "Push-It!";
+char shake_it_buff_to_BlueTooth_module[] = "Shake-It!";
+char separator_to_BlueTooth_module[] = "\r\n-------------------\r\n";
+char tx_buff_to_HostPC[BUFF_SIZE];
+char rx_buff_from_HostPC[BUFF_SIZE];
+void readFromBT( uint32_t timeout, int debug);
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -238,11 +200,28 @@ int main(void)
   // Initialize all configured peripherals
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_USART1_UART_Init();
   MX_SPI1_Init();
   MX_I2C1_Init();
 
   // LCD display initialization; black screen;
   LCD_init();
+
+  LCD_PutStr(15,32,  (char *)BT_LOADING, SMALL_FONT, C_WHITE, C_BLACK);
+  LCD_PutStr(15, 50, (char *)PUSH_BUTTON_TO_START, SMALL_FONT, C_WHITE, C_BLACK);
+
+  // Getting a randomized seed for the rand() function based on the time it takes
+  // to push the Blue Push Button to ensure randomized mice positions.
+  int counter = 0;
+  while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) {
+    if (counter < 6499) {
+      counter++;
+    } else {
+      counter = 0;
+    }
+  }
+
+  srand(counter);
 
   // one time print of message and variable names;
   // note this text will be having pixels erased as the yellow
@@ -251,20 +230,26 @@ int main(void)
   // NunChuck phase 1;
   NunChuck_phase1_init();
 
+  // Set up BT
+  // This function is only called once.
+  //BT_module_refunction();
+
+  // Remove BT loading message from screen once BT_module_refunction() is done.
+  LCD_PutStr(15, 32, (char *)BT_LOADING, SMALL_FONT, C_BLACK, C_BLACK);
+  LCD_PutStr(15, 50, (char *)PUSH_BUTTON_TO_START, SMALL_FONT, C_BLACK, C_BLACK);
+
+  HAL_Delay(100);
+
   // Draw 3 hearts at beginning for 3 lives.
   LCD_DrawImage(32, 90, &heartAliveBmp);
   LCD_DrawImage(92, 90, &heartAliveBmp);
   LCD_DrawImage(152, 90, &heartAliveBmp);
 
-  // Seed the random number generator
-  srand(time(NULL));
-
   while (alive)
   {
-
     // Resetting the correct 'boolean'
     correct = 0;
-    // Resetting GPIO_PIN_%
+    // Resetting GPIO_PIN_5
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
     // clear receive buffer;
@@ -283,37 +268,26 @@ int main(void)
 
     // Display action on LCD board.
     if (random_action == 0) {
-      LCD_PutStr(32,32,  (char *)C_IT_LCD, DEFAULT_FONT, C_WHITE, C_BLACK);
       HAL_UART_Transmit(&huart2, (uint8_t*)C_IT, strlen(C_IT), HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart1, (uint8_t*)c_it_buff_to_BlueTooth_module, strlen(c_it_buff_to_BlueTooth_module), HAL_MAX_DELAY);
     } else if (random_action == 1){
-      LCD_PutStr(32,32,  (char *)Z_IT_LCD, DEFAULT_FONT, C_WHITE, C_BLACK);
       HAL_UART_Transmit(&huart2, (uint8_t*)Z_IT, strlen(Z_IT), HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart1, (uint8_t*)z_it_buff_to_BlueTooth_module, strlen(z_it_buff_to_BlueTooth_module), HAL_MAX_DELAY);
     } else if (random_action == 2) {
-      LCD_PutStr(32,32,  (char *)PUSH_IT_LCD, DEFAULT_FONT, C_WHITE, C_BLACK);
       HAL_UART_Transmit(&huart2, (uint8_t*)PUSH_IT, strlen(PUSH_IT), HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart1, (uint8_t*)push_it_buff_to_BlueTooth_module, strlen(push_it_buff_to_BlueTooth_module), HAL_MAX_DELAY);
     } else if (random_action == 3) {
-      LCD_PutStr(32,32,  (char *)TWIST_IT_LCD, DEFAULT_FONT, C_WHITE, C_BLACK);
       HAL_UART_Transmit(&huart2, (uint8_t*)TWIST_IT, strlen(TWIST_IT), HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart1, (uint8_t*)twist_it_buff_to_BlueTooth_module, strlen(twist_it_buff_to_BlueTooth_module), HAL_MAX_DELAY);
     } else {
-      LCD_PutStr(32,32,  (char *)SHAKE_IT_LCD, DEFAULT_FONT, C_WHITE, C_BLACK);
       HAL_UART_Transmit(&huart2, (uint8_t*)SHAKE_IT, strlen(SHAKE_IT), HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart1, (uint8_t*)shake_it_buff_to_BlueTooth_module, strlen(shake_it_buff_to_BlueTooth_module), HAL_MAX_DELAY);
     }
+    // Separating each action in BT screen
+    HAL_UART_Transmit(&huart1, (uint8_t*)separator_to_BlueTooth_module, strlen(separator_to_BlueTooth_module), HAL_MAX_DELAY);
 
     // Wait.
     HAL_Delay(2000);
-
-    // Erase action from LCD board.
-    if (random_action == 0) {
-      LCD_PutStr(32,32,  (char *)C_IT_LCD, DEFAULT_FONT, C_BLACK, C_BLACK);
-    } else if (random_action == 1){
-      LCD_PutStr(32,32,  (char *)Z_IT_LCD, DEFAULT_FONT, C_BLACK, C_BLACK);
-    } else if (random_action == 2) {
-      LCD_PutStr(32,32,  (char *)PUSH_IT_LCD, DEFAULT_FONT, C_BLACK, C_BLACK);
-    } else if (random_action == 3) {
-      LCD_PutStr(32,32,  (char *)TWIST_IT_LCD, DEFAULT_FONT, C_BLACK, C_BLACK);
-    } else {
-      LCD_PutStr(32,32,  (char *)SHAKE_IT_LCD, DEFAULT_FONT, C_BLACK, C_BLACK);
-    }
 
     // NunChuck phase 2
     NunChuck_phase2_read();
@@ -385,12 +359,96 @@ int main(void)
   // Display game over message, how to restart the game, and the final score on the screen.
   UG_FillScreen(C_BLACK); // This will draw over last heart.
   LCD_PutStr(32,32,  (char *)GAME_OVER, DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,64,  (char *)GAME_RESET, SMALL_FONT, C_WHITE, C_BLACK);
   LCD_PutStr(32, 180,  (char *)FINAL_SCORE, DEFAULT_FONT, C_WHITE, C_BLACK);
   sprintf(text_buffer, "%01d", score);
   LCD_PutStr(32, 200, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
   HAL_UART_Transmit(&huart2, (uint8_t*)GAME_OVER, strlen(GAME_OVER), HAL_MAX_DELAY);
 
+}
+
+void sendCommandToBT(char *command, uint32_t timeout, int debug)
+{
+  int i = 0;
+  // (1) clear receive buffer first;
+  for (i = 0; i < BUFF_SIZE; i++) {
+    rx_buff_from_BlueTooth_module[i] = 0;
+  }
+
+  // (2) send command to BT module;
+  HAL_UART_Transmit(&huart1, (uint8_t *)command, strlen(command), timeout);
+
+  // (3) check if BT module replied with anything; place received message
+  // into rx_buff_from_BlueTooth_module;
+  HAL_UART_Receive(&huart1, (uint8_t *)rx_buff_from_BlueTooth_module, BUFF_SIZE, timeout);
+
+  // (4) if debug is true, we also print to host PC;
+  if (debug) {
+    sprintf(tx_buff_to_HostPC, "%s", "\r\n<-------- START response to sendCommandToBT() -------->\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
+    strcpy(tx_buff_to_HostPC, rx_buff_from_BlueTooth_module);
+    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
+    sprintf(tx_buff_to_HostPC, "%s", "\r\n>>------- END response to sendCommandToBT() -------<<\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
+  }
+}
+
+
+//void BT_module_refunction(void)
+//{
+//  // this function should be called only once;
+//  sendCommandToBT("AT", 3000, 1); // timeout of 3000 ms should be enough; debug set to true;
+//  HAL_Delay(1000);
+//  sendCommandToBT("AT+VERSION?", 3000, 1); // ask version of firmware;
+//  HAL_Delay(1000);
+//  sendCommandToBT("AT+NAMENucleoSays", 3000, 1);
+//}
+
+void readFromHostPC( uint32_t timeout)
+{
+  // reads from host PC;
+  int i = 0;
+
+  // (1) clear receive buffer first;
+  for (i = 0; i < BUFF_SIZE; i++) {
+    rx_buff_from_HostPC[i] = 0;
+  }
+
+  // (2) check if anything was sent from host PC;
+  // place received message rx_buff_from_HostPC;
+  HAL_UART_Receive(&huart1, (uint8_t *)rx_buff_from_HostPC, BUFF_SIZE, timeout);
+}
+
+void readFromBT( uint32_t timeout, int debug)
+{
+  // reads from the BT module if it has received anything;
+  int i = 0;
+
+  // (1) clear receive buffer first;
+  for (i = 0; i < BUFF_SIZE; i++) {
+    rx_buff_from_BlueTooth_module[i] = 0;
+  }
+
+  // (2) check if anything was sent from BT module;
+  // place received message into rx_buff_from_BlueTooth_module;
+  HAL_UART_Receive(&huart1, (uint8_t *)rx_buff_from_BlueTooth_module, BUFF_SIZE, timeout);
+
+  if (strcmp((char *)rx_buff_from_BlueTooth_module, "1") == 0) {
+       // Turn built-in LED on (assuming it's on GPIOA, PIN 5)
+       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+   } else if (strcmp((char *)rx_buff_from_BlueTooth_module, "2") == 0) {
+       // Turn built-in LED off
+       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+   }
+
+  // (3) if debug is true, we also print to host PC;
+  if (debug) {
+    sprintf(tx_buff_to_HostPC, "%s", "\r\n<-------- START received data from BT -------->\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
+    strcpy(tx_buff_to_HostPC, rx_buff_from_BlueTooth_module);
+    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
+    sprintf(tx_buff_to_HostPC, "%s", "\r\n>>------- END received data from BT -------<<\r\n");
+    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
+  }
 }
 
 
@@ -524,6 +582,40 @@ void NunChuck_print_data(void)
 // configuration functions
 //
 ///////////////////////////////////////////////////////////////////////////////
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 9600;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
 
 /**
   * @brief System Clock Configuration
@@ -718,30 +810,30 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin Output Level - DC*/
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LD2_Pin|LCD_DC_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level - RST */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level - CS */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : ST7789_DC_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_9;
+  GPIO_InitStruct.Pin = LD2_Pin|LCD_DC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ST7789_RST_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_7;
+  GPIO_InitStruct.Pin = LCD_RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ST7789_CS_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Pin = LCD_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

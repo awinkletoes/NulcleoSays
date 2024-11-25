@@ -144,8 +144,8 @@ typedef enum{
 #define SCK_GPIO_Port GPIOB // PB3
 #define SDO_Pin GPIO_PIN_5
 #define SDO_GPIO_Port GPIOB
-#define LCD_DC_Pin GPIO_PIN_9
-#define LCD_DC_GPIO_Port GPIOA // PA9
+#define LCD_DC_Pin GPIO_PIN_8
+#define LCD_DC_GPIO_Port GPIOA // PA8
 #define LCD_RST_Pin GPIO_PIN_7
 #define LCD_RST_GPIO_Port GPIOC // PC7
 #define LCD_CS_Pin GPIO_PIN_6
