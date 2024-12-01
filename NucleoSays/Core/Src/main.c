@@ -50,11 +50,9 @@ static void MX_I2C1_Init(void);
 // function declarations;
 HAL_StatusTypeDef Write_To_NunChuck(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t len);
 HAL_StatusTypeDef Read_From_NunChuck(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t len);
-void NunChuck_print_data_init(void);
 void NunChuck_phase1_init(void);
 void NunChuck_phase2_read(void);
 void NunChuck_translate_data(void);
-void NunChuck_print_data(void);
 // two fixed length buffers I use to put data to sent or where to put data
 // received over the I2C bus;
 uint8_t I2CMasterBuffer[BUFSIZE];
@@ -68,12 +66,13 @@ uint16_t accel_y_axis = 0;
 uint16_t accel_z_axis = 0;
 uint16_t z_button = 0;
 uint16_t c_button = 0;
-int score = 0;
-int correct = 0;
+int score = 0; // Tracks the score of the player. Incremented for each correct action.
+int correct = 0; // A boolean to track if the action was correct or not. 1 is correct, 0 is incorrect.
 
 // Track Lives
-int lives = 3;
-int alive = 1; // boolean 1 if lives left; 0 if no lives left and game is over
+int lives = 3; // Each player will start with three lives in the game. For each incorrect action, 1 life will be lost.
+int alive = 1; // Boolean; 1 if lives > 0; 0 if lives = 0 and game is over.
+
 // Heart Photo Bitmap
 static const uint16_t image_data_finalHeart[2916] = {
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0001, 0x0000, 0x0020, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0020, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0801, 0x0000, 0x0001, 0x0000, 0x0000, 0x0020, 0x0020, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0020,
@@ -141,7 +140,6 @@ UG_BMP heartAliveBmp = {
     .p = (uint16_t*)finalHeart // Pointer to the image array
 };
 
-
 // Debugging Messages
 #define Z_IT "Z Press\r\n"
 #define C_IT "C Press\r\n"
@@ -207,6 +205,7 @@ int main(void)
   // LCD display initialization; black screen;
   LCD_init();
 
+  // Print message on the screen that the BT is connecting. When user is ready, push Blue Pushbutton to start the game.
   LCD_PutStr(15,32,  (char *)BT_LOADING, SMALL_FONT, C_WHITE, C_BLACK);
   LCD_PutStr(15, 50, (char *)PUSH_BUTTON_TO_START, SMALL_FONT, C_WHITE, C_BLACK);
 
@@ -223,16 +222,12 @@ int main(void)
 
   srand(counter);
 
-  // one time print of message and variable names;
-  // note this text will be having pixels erased as the yellow
-  // circle will be moved and overlapping with the text;
-  //NunChuck_print_data_init();
   // NunChuck phase 1;
   NunChuck_phase1_init();
 
   // Set up BT
   // This function is only called once.
-  //BT_module_refunction();
+  // BT_module_refunction();
 
   // Remove BT loading message from screen once BT_module_refunction() is done.
   LCD_PutStr(15, 32, (char *)BT_LOADING, SMALL_FONT, C_BLACK, C_BLACK);
@@ -240,19 +235,21 @@ int main(void)
 
   HAL_Delay(100);
 
-  // Draw 3 hearts at beginning for 3 lives.
+  // Draw 3 hearts at beginning of the game for 3 lives.
   LCD_DrawImage(32, 90, &heartAliveBmp);
   LCD_DrawImage(92, 90, &heartAliveBmp);
   LCD_DrawImage(152, 90, &heartAliveBmp);
 
+  // Continue the game as long as alive is 1.
   while (alive)
   {
     // Resetting the correct 'boolean'
     correct = 0;
+
     // Resetting GPIO_PIN_5
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-    // clear receive buffer;
+    // Clear receive buffer;
     for ( i = 0; i < BUFSIZE; i++ ) {
       I2CSlaveBuffer[i] = 0x00;
     }
@@ -266,7 +263,7 @@ int main(void)
     // 4: Shake-it!   The program expected joystick acceleration from the Wii Nunchuck.
     HAL_UART_Transmit(&huart2, (uint8_t*)EXPECTED_ACTION, strlen(EXPECTED_ACTION), HAL_MAX_DELAY);
 
-    // Display action on LCD board.
+    // Transmit the expected action to the UART terminal and to the BT connection.
     if (random_action == 0) {
       HAL_UART_Transmit(&huart2, (uint8_t*)C_IT, strlen(C_IT), HAL_MAX_DELAY);
       HAL_UART_Transmit(&huart1, (uint8_t*)c_it_buff_to_BlueTooth_module, strlen(c_it_buff_to_BlueTooth_module), HAL_MAX_DELAY);
@@ -292,7 +289,6 @@ int main(void)
     // NunChuck phase 2
     NunChuck_phase2_read();
     NunChuck_translate_data();
-    //NunChuck_print_data();
 
     HAL_Delay(1000);
     HAL_UART_Transmit(&huart2, (uint8_t*)ACTUAL_ACTION, strlen(ACTUAL_ACTION), HAL_MAX_DELAY);
@@ -328,6 +324,7 @@ int main(void)
       correct = 1;
     }
 
+    // If the actual action was incorrect: lose a life, remove a heart from on the screen.
     if (correct == 0) {
       HAL_UART_Transmit(&huart2, (uint8_t*)INCORRECT, strlen(INCORRECT), HAL_MAX_DELAY);
       HAL_UART_Transmit(&huart2, (uint8_t*)LIFE_LOST, strlen(LIFE_LOST), HAL_MAX_DELAY);
@@ -340,7 +337,7 @@ int main(void)
         // Draw over middle heart
         UG_FillFrame(92, 90, 146, 144, C_BLACK);
       }
-    } else {
+    } else { // If the actual action was correct: increase the score on the LCD display.
       // Update score if necessary on LCD.
       LCD_PutStr(32, 180,  (char *)SCORE, DEFAULT_FONT, C_WHITE, C_BLACK);
       sprintf(text_buffer, "%01d", score);
@@ -356,7 +353,7 @@ int main(void)
   }
 
   // No more lives. Game Over.
-  // Display game over message, how to restart the game, and the final score on the screen.
+  // Display game over message and the final score on the screen.
   UG_FillScreen(C_BLACK); // This will draw over last heart.
   LCD_PutStr(32,32,  (char *)GAME_OVER, DEFAULT_FONT, C_WHITE, C_BLACK);
   LCD_PutStr(32, 180,  (char *)FINAL_SCORE, DEFAULT_FONT, C_WHITE, C_BLACK);
@@ -366,6 +363,7 @@ int main(void)
 
 }
 
+// This function is needed for the initial setup of the BT module.
 void sendCommandToBT(char *command, uint32_t timeout, int debug)
 {
   int i = 0;
@@ -402,55 +400,6 @@ void sendCommandToBT(char *command, uint32_t timeout, int debug)
 //  HAL_Delay(1000);
 //  sendCommandToBT("AT+NAMENucleoSays", 3000, 1);
 //}
-
-void readFromHostPC( uint32_t timeout)
-{
-  // reads from host PC;
-  int i = 0;
-
-  // (1) clear receive buffer first;
-  for (i = 0; i < BUFF_SIZE; i++) {
-    rx_buff_from_HostPC[i] = 0;
-  }
-
-  // (2) check if anything was sent from host PC;
-  // place received message rx_buff_from_HostPC;
-  HAL_UART_Receive(&huart1, (uint8_t *)rx_buff_from_HostPC, BUFF_SIZE, timeout);
-}
-
-void readFromBT( uint32_t timeout, int debug)
-{
-  // reads from the BT module if it has received anything;
-  int i = 0;
-
-  // (1) clear receive buffer first;
-  for (i = 0; i < BUFF_SIZE; i++) {
-    rx_buff_from_BlueTooth_module[i] = 0;
-  }
-
-  // (2) check if anything was sent from BT module;
-  // place received message into rx_buff_from_BlueTooth_module;
-  HAL_UART_Receive(&huart1, (uint8_t *)rx_buff_from_BlueTooth_module, BUFF_SIZE, timeout);
-
-  if (strcmp((char *)rx_buff_from_BlueTooth_module, "1") == 0) {
-       // Turn built-in LED on (assuming it's on GPIOA, PIN 5)
-       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-   } else if (strcmp((char *)rx_buff_from_BlueTooth_module, "2") == 0) {
-       // Turn built-in LED off
-       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-   }
-
-  // (3) if debug is true, we also print to host PC;
-  if (debug) {
-    sprintf(tx_buff_to_HostPC, "%s", "\r\n<-------- START received data from BT -------->\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
-    strcpy(tx_buff_to_HostPC, rx_buff_from_BlueTooth_module);
-    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
-    sprintf(tx_buff_to_HostPC, "%s", "\r\n>>------- END received data from BT -------<<\r\n");
-    HAL_UART_Transmit(&huart2, (uint8_t*)tx_buff_to_HostPC, strlen(tx_buff_to_HostPC), HAL_MAX_DELAY);
-  }
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -492,20 +441,6 @@ HAL_StatusTypeDef Read_From_NunChuck(I2C_HandleTypeDef *hi2c,
   returnValue = HAL_I2C_Master_Receive(hi2c, DevAddress, pData, len, HAL_MAX_DELAY);
 
   return returnValue;
-}
-
-void NunChuck_print_data_init(void)
-{
-  // Note: this function should be called once only;
-//  LCD_PutStr(32,32,  (char *)"This is I2C example", DEFAULT_FONT, C_WHITE, C_BLACK);
-//  LCD_PutStr(32,48,  (char *)"Data from NunChuck:", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,64,  (char *)"joyX =", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,80,  (char *)"joyY =", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,96,  (char *)"accX =", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,112, (char *)"accY =", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,128, (char *)"accZ =", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,144, (char *)"Z    =", DEFAULT_FONT, C_WHITE, C_BLACK);
-  LCD_PutStr(32,160, (char *)"C    =", DEFAULT_FONT, C_WHITE, C_BLACK);
 }
 
 void NunChuck_phase1_init(void)
@@ -556,26 +491,6 @@ void NunChuck_translate_data(void)
   accel_y_axis += (byte5 >> 4) & 0x03;
   accel_z_axis += (byte5 >> 6) & 0x03;
 }
-
-void NunChuck_print_data(void)
-{
-  // this is called as many times as reads from the NunChuck;
-  sprintf(text_buffer, "%03d", joy_x_axis);
-  LCD_PutStr(88, 64, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-  sprintf(text_buffer, "%03d", joy_y_axis);
-  LCD_PutStr(88, 80, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-  sprintf(text_buffer, "%04d", accel_x_axis);
-  LCD_PutStr(88, 96, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-  sprintf(text_buffer, "%04d", accel_y_axis);
-  LCD_PutStr(88, 112, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-  sprintf(text_buffer, "%04d", accel_z_axis);
-  LCD_PutStr(88, 128, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-  sprintf(text_buffer, "%01d", z_button);
-  LCD_PutStr(88, 144, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-  sprintf(text_buffer, "%01d", c_button);
-  LCD_PutStr(88, 160, (char *)text_buffer, DEFAULT_FONT, C_YELLOW, C_BLACK);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
